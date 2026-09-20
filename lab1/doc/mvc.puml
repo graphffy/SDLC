@@ -1,0 +1,75 @@
+@startuml
+
+class Main {
+    +main(args: String[])
+}
+
+class MainView {
+    -resultLabel: JLabel
+    +MainView()
+    +setInputButtonListener(listener: ActionListener)
+    +updateResult(inverted: String)
+    +showError(message: String)
+}
+
+class Controller {
+    -model: Model
+    -view: MainView
+    +Controller(model: Model, view: MainView)
+    -showInputDialog()
+}
+
+class Model {
+    {static} +INPUT_PROPERTY: String
+    -inputSentence: String
+    -invertedSentence: String
+    -lastInput: String
+    -support: PropertyChangeSupport
+    +setInput(input: String)
+    +getInvertedSentence(): String
+    +getLastInput(): String
+    -invertWords(sentence: String): String
+    +addPropertyChangeListener(listener: PropertyChangeListener)
+    +removePropertyChangeListener(listener: PropertyChangeListener)
+}
+
+class InputDialog {
+    -textField: JTextField
+    -inputText: String
+    +InputDialog(parent: JFrame, initialText: String)
+    +getInputText(): String
+}
+
+interface PropertyChangeListener {
+    +propertyChange(evt: PropertyChangeEvent)
+}
+
+class PropertyChangeSupport
+
+interface ActionListener
+
+' Создание основных компонентов
+Main ..> Model : creates
+Main ..> MainView : creates
+Main ..> Controller : creates
+
+' Взаимодействие Controller
+Controller --> Model : updates
+Controller --> MainView : updates
+Controller ..> InputDialog : creates
+
+' Model - события
+Model --> PropertyChangeSupport : uses
+Model ..> PropertyChangeListener : notifies
+Controller ..> PropertyChangeListener : registers
+
+' View
+MainView ..> ActionListener : accepts
+
+' InputDialog
+InputDialog ..> ActionListener : uses
+
+' Направление логики MVC
+MainView --> Controller : requests input
+
+@enduml
